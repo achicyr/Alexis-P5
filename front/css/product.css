@@ -59,6 +59,7 @@
 .item__content__settings__color {
 	margin-bottom: 10px;
 }
+
 .item__content__settings__color select,
 .item__content__settings__quantity input {
 	color: var(--footer-secondary-color);
@@ -90,7 +91,20 @@
 .item__content__addButton button:hover {
 	box-shadow: rgba(42, 18, 206, 0.9) 0 0 22px 6px;
 }
-
+#sucess,
+#errorQty,
+#errorColor{
+	margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+	color: #2d2f3e;
+	display:none;
+}
+#sucess,
+#errorQty{
+	margin-top: 10px;
+}
 
 
 
