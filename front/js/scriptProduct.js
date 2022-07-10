@@ -36,8 +36,9 @@ product();
 
 function stockJson(qty,clr){  // Stock en format Json dans le localStorage 
   let objJson = {
-    quantity : qty,
-    color : clr
+    color : clr,
+    id : ID,
+    quantity : qty
   }
   let objLinea = JSON.stringify(objJson);
   var key = ID + clr;
