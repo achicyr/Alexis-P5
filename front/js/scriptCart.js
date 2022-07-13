@@ -1,3 +1,5 @@
+var copyLoco = [];
+var contact = '';
 
 /*** FONCTIONS ***/
 
@@ -57,93 +59,67 @@ function total(){  // Calcul le total en euros des produits et le modifie dans l
   document.getElementById('totalPrice').innerHTML = sum;
 }
 
-let contact = {
-  nom : 'Alexis',
-  prenom : 'Lamandé',
-  tel : '00000000'
-}
-/** 
-function send() {
-  fetch("http://localhost:3000/api/products/order", {
-    method: "POST",
-    headers: {
-      'Accept': 'application/json', 
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contact: {
-          firstName: "Alexis",
-          lastName: "Lamandé",
-          address: "fdzef",
-          city: "dzedze",
-          email: "desdazdaz"
-      },
-      products: []
-  })
-  })
-  .then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
 
-}**/
-
-fetch("http://localhost:3000/api/products/order/", {
+function send(){   // Fonction qui envoie à l'API les coordonnées et le contenue de la commande en renvoie l'ID de commande
+fetch("http://localhost:3000/api/products/order", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
     contact: {
-        firstName: "Alexis",
-        lastName: "Lamandé",
-        address: "fdzef",
-        city: "dzedze",
-        email: "desdazdaz"
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      city: document.getElementById('city').value,
+      address: document.getElementById('address').value,
+      email: document.getElementById('email').value,
     },
-    products: [1,2]
+    products:copyLoco,
 })
 })
   .then((res) => res.json())
   // to check res.ok status in the network
   .then((data) => {
-
+    localStorage.clear();
+    console.log(data)
+    localStorage.setItem("orderId", data.orderId);
   })
   .catch(() => {
     alert("Une erreur est survenue");
   }); // catching errors
+}
 
+function checkForm(){
+  let good = true;
+  // On définis les masque
+  let nameMask =  /[^a-zA-Z-éèï]/;
+  let addressMask = /\d\s[a-zA-Z]+\s\S/;
+  let mailMask = /\S[@]\S+[.][a-zA-Z]/
 
-  function se() {   // Récupère les données dans l'API et les stock dans le domaine
-    fetch("http://localhost:3000/api/products/order",{
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contact: {
-            firstName: "Alexis",
-            lastName: "Lamandé",
-            address: "fdzef",
-            city: "dzedze",
-            email: "desdazdaz"
-        },
-        products: [1,2]
-    })
-    })
-    .then(function(res) {
-      if (res.ok) {
-        return res.json();
-      }
-    })
+  // On récupère les données
+  let firstName = document.getElementById('firstName').value;
+  let lastName = document.getElementById('lastName').value;
+  let address = document.getElementById('address').value;
+  let city = document.getElementById('city').value;
+  let email = document.getElementById('email').value;
 
-    .catch(function(err) {
-      alert("Une erreur est survenue")
-    });
-  
+  if(nameMask.test(firstName)){
+    good = false;
   }
-
+  if(nameMask.test(lastName)){
+    good = false;
+  }
+  if(nameMask.test(city)){
+    good = false;
+  }
+  if(addressMask.test(address) == false){
+    good = false;
+  }
+  if(mailMask.test(email) == false){
+    good = false;
+  }
+  return good;
+}
 
 /*** CORP DU CODE ***/
 
@@ -200,3 +176,24 @@ Array.from(del).forEach(function(elem) {  // Permet la suppression d'élément d
 setTimeout(function() {
   total();
 },100)
+
+
+
+document.getElementById('order').addEventListener("click", function() {  
+  var elem = [];
+  for( let i = 0 ; i < localStorage.length; i++){   // Ajoute les produits dU Localstorage dans un tableau
+    elem = readn(i).id;
+    copyLoco.push(elem);
+  }
+  if(checkForm){
+    send();
+  }
+  else{
+    
+  }
+
+  
+});
+
+
+
