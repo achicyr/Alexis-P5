@@ -47,19 +47,6 @@ function readk(key){  // Récupère l'item localStorage de key k et renvoie sa q
   return objJson;
 }
 
-function total(){  // Calcul le total en euros des produits et le modifie dans le DOM
-  var sum = 0;
-  for (let i = 0; i < item.length ; i++){
-    var prix = document.getElementsByClassName("cart__item__content__description")[i].children[2].innerHTML;
-    var prixInt = Number(prix.split(',')[0]);
-    var prixTot = inputQty[i].value * prixInt;
-    sum = sum + prixTot;
-  }
-  document.getElementById('totalQuantity').innerHTML = item.length;
-  document.getElementById('totalPrice').innerHTML = sum;
-}
-
-
 function send(){   // Fonction qui envoie à l'API les coordonnées et le contenue de la commande en renvoie l'ID de commande
 fetch("http://localhost:3000/api/products/order", {
   method: "POST",
@@ -67,14 +54,14 @@ fetch("http://localhost:3000/api/products/order", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    contact: {
+    contact : {
       firstName: document.getElementById('firstName').value,
       lastName: document.getElementById('lastName').value,
       city: document.getElementById('city').value,
       address: document.getElementById('address').value,
       email: document.getElementById('email').value,
     },
-    products:copyLoco,
+    products : copyLoco,
 })
 })
   .then((res) => res.json())
@@ -89,37 +76,87 @@ fetch("http://localhost:3000/api/products/order", {
   }); // catching errors
 }
 
-function checkForm(){
-  let good = true;
-  // On définis les masque
+// Vérifie que la syntaxe correspond à un(e) nom/prénom/ville
+function checkName(field){
   let nameMask =  /[^a-zA-Z-éèï]/;
+  if(nameMask.test(field)){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+// Vérifie que la syntaxe correspond à une adresse
+function checkAddress(field){
   let addressMask = /\d\s[a-zA-Z]+\s\S/;
+  if(addressMask.test(field) == false){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+// Vérifie que la syntaxe correspond à un email
+function checkMail(field){
   let mailMask = /\S[@]\S+[.][a-zA-Z]/
+  if(mailMask.test(field) == false){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
 
-  // On récupère les données
-  let firstName = document.getElementById('firstName').value;
-  let lastName = document.getElementById('lastName').value;
-  let address = document.getElementById('address').value;
-  let city = document.getElementById('city').value;
-  let email = document.getElementById('email').value;
+// Vérifie que la syntaxe de tous les champs du formulaire est correct
+function checkForm(){
+  let firstNameV = firstName.value;
+  let lastNameV = lastName.value;
+  let addressV = address.value;
+  let cityV = city.value;
+  let emailV = email.value;
+  let good = true;
 
-  if(nameMask.test(firstName)){
+  if(checkName(firstNameV) == false){
     good = false;
   }
-  if(nameMask.test(lastName)){
+  if(checkName(lastNameV) == false){
     good = false;
   }
-  if(nameMask.test(city)){
+  if(checkName(cityV) == false){
     good = false;
   }
-  if(addressMask.test(address) == false){
+  if(checkAddress(addressV) == false){
     good = false;
   }
-  if(mailMask.test(email) == false){
+  if(checkMail(emailV) == false){
     good = false;
   }
+
   return good;
 }
+
+//Érreur quand on modifie les champs du formulaire :
+function flip(div,f){
+  let daddy = div.closest('div');
+  let picto = daddy.children[2];
+  let msg = daddy.children[3];
+  addEventListener('change', event => { 
+    if(f(div.value)){
+      picto.style.display = 'block';
+      msg.style.display = 'none';
+    }
+    else{
+      picto.style.display = 'none';
+      msg.style.display = 'block';
+    }
+    if(div.value ==""){
+      picto.style.display = 'none';
+      msg.style.display = 'none';
+    }
+  });
+  }
 
 /*** CORP DU CODE ***/
 
@@ -127,16 +164,24 @@ var item = document.getElementsByClassName("cart__item");
 var inputQty = document.getElementsByClassName("itemQuantity");
 var del = document.getElementsByClassName("deleteItem");
 
+let firstName = document.getElementById('firstName');
+let lastName = document.getElementById('lastName');
+let address = document.getElementById('address');
+let city = document.getElementById('city');
+let email = document.getElementById('email');
+
 document.getElementsByClassName("cart__order__form")[0].addEventListener("submit", function(event){
   event.preventDefault()
 });
 
-if(localStorage.length == 0){  // Notifie que le panier est vide
+// Notifie que le panier est vide
+if(localStorage.length == 0){  
   document.getElementById("cart__items").removeChild(item[0]);
   document.querySelector("h1").innerHTML = "Votre panier est vide";
 }
 
-for( let i = 0 ; i < localStorage.length; i++){   // Ajoute les produits dans le DOM
+// Ajoute les produits dans le DOM
+for( let i = 0 ; i < localStorage.length; i++){   
   if(i > 0){
     var copy = item[0].cloneNode(true);
     document.getElementById("cart__items").appendChild(copy);
@@ -149,8 +194,9 @@ for( let i = 0 ; i < localStorage.length; i++){   // Ajoute les produits dans le
   product(i);
 }
 
-Array.from(inputQty).forEach(function(elem) {  // Modifie la quantité à chaque changement 
-  elem.addEventListener("click", function() {  // de l'utilisateur dans le panier
+// Modifie la quantité à chaque changement de l'utilisateur dans le panier
+Array.from(inputQty).forEach(function(elem) {  
+  elem.addEventListener("click", function() {  
     var newQty = elem.value;
     var article = elem.closest('article');
     var ID = readk(article.dataset.key).id;
@@ -161,7 +207,8 @@ Array.from(inputQty).forEach(function(elem) {  // Modifie la quantité à chaque
   });
 });
 
-Array.from(del).forEach(function(elem) {  // Permet la suppression d'élément dans le panier
+// Permet la suppression d'élément dans le panier
+Array.from(del).forEach(function(elem) {  
   elem.addEventListener("click", function() {
     var article = elem.closest('article');
     article.remove();
@@ -173,26 +220,55 @@ Array.from(del).forEach(function(elem) {  // Permet la suppression d'élément d
   });
 });
 
+//Calcul le prix total
 setTimeout(function() {
-  total();
+  var sum = 0;
+  for (let i = 0; i < item.length ; i++){
+    var prix = document.getElementsByClassName("cart__item__content__description")[i].children[2].innerHTML;
+    var prixInt = Number(prix.split(',')[0]);
+    var prixTot = inputQty[i].value * prixInt;
+    sum = sum + prixTot;
+  }
+  document.getElementById('totalQuantity').innerHTML = item.length;
+  document.getElementById('totalPrice').innerHTML = sum;
 },100)
 
 
 
+//Champ prénom
+flip(firstName,checkName);
+//Champ nom
+flip(lastName,checkName);
+//Champ adresse
+flip(address,checkAddress);
+//Champ ville
+flip(city,checkName);
+//Champ email
+flip(email,checkMail);
+
+//Bouton commander
 document.getElementById('order').addEventListener("click", function() {  
   var elem = [];
   for( let i = 0 ; i < localStorage.length; i++){   // Ajoute les produits dU Localstorage dans un tableau
     elem = readn(i).id;
     copyLoco.push(elem);
   }
-  if(checkForm){
-    send();
+
+  if(localStorage.length == 0){
+    let msgEmpty = document.getElementsByClassName('cart__order__form__submit')[0].children[1];
+    msgEmpty.style.display = 'block';
   }
   else{
-    
+    if(checkForm()){
+      send();
+
+      setTimeout(function() {
+        window.location ="./confirmation.html";
+      },100) 
+    }
   }
 
-  
+
 });
 
 
