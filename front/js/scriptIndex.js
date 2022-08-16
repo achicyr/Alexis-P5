@@ -1,4 +1,11 @@
-let nombreP = 0;
+//---------------------------------------------------------------//
+//-------------------------- FONCTIONS --------------------------//
+//---------------------------------------------------------------//
+
+/** 
+ * * NOMBREPRODUIT 
+ * ? Calcul combien il y'a de produit et le stock dans la variable globale nombreP
+ */
 function nombreProduit() {
     fetch("http://localhost:3000/api/products")
     .then(function(res) {
@@ -7,14 +14,18 @@ function nombreProduit() {
       }
     })
     .then(function(value) {
-        nombreP = value.length;
+       nombreP = value.length;
       })
     .catch(function(err) {
       // Une erreur est survenue
     });
     }
-nombreProduit();
 
+/** 
+ * * HOME
+ * ? Remplis le DOM pour le produit numéro n avec le lien vers sa page produit, son image, son nom et sa description
+ * @param {int} n 
+ */
 function home(n) {
     fetch("http://localhost:3000/api/products")
     .then(function(res) {
@@ -35,9 +46,16 @@ function home(n) {
 
   }
 
+//------------------------------------------------------------------//
+//-------------------------- CORP DU CODE --------------------------//
+//------------------------------------------------------------------//
 
+  let nombreP = 0; 
+  nombreProduit();
   let section = document.getElementById("items");
 
+  // On va créer des conteneur dans le DOM avec les balises h3,a,p,img
+  // puis on va les compléter en appelant la fonction home pour chaque produit
   setTimeout(function() {
     for (let i = 0 ; i < nombreP; i++){
       const a = document.createElement("a");

@@ -1,8 +1,11 @@
+//---------------------------------------------------------------//
+//-------------------------- FONCTIONS --------------------------//
+//---------------------------------------------------------------//
 
-var url = window.location.href;
-
-var ID = url.split('id=')[1]; // Trouve et stock l'ID correspond au produit de la page
-
+/** 
+ * * PRODUCT
+ * ? Remplis le DOM pour le produit correspondant à l'ID recupéré avec son image, son nom, sa description et ses couleurs
+ */
 function product() {
   fetch("http://localhost:3000/api/products/" + ID)
   .then(function(res) {
@@ -26,15 +29,20 @@ function product() {
       }
   }) 
   .catch(function(err) {
+    alert("Une erreur est survenue")
     // Une erreur est survenue
   });
 
 }
 
-product();
 
-
-function stockJson(qty,clr){  // Stock en format Json dans le localStorage 
+/** 
+ * * STOCK
+ * ? Stock en format Json dans le localStorage 
+ * @param {string} qty 
+ * @param {string} clr 
+ */
+function stock(qty,clr){ 
   let objJson = {
     color : clr,
     id : ID,
@@ -45,16 +53,31 @@ function stockJson(qty,clr){  // Stock en format Json dans le localStorage
   localStorage.setItem(key,objLinea);
 }
 
-function readQty(n){  // Récupère le n-ième item du localStorage et renvoie sa quantité en entier
+/** 
+ * * READQTY
+ * ? Récupère le n-ième item du localStorage et renvoie sa quantité déjâ existante dans le panier
+ * @param {int} n 
+ */
+function readQty(n){
   let objLinea = localStorage.getItem(localStorage.key(n));
   let objJson = JSON.parse(objLinea);
   return parseInt(objJson.quantity);
 }
 
-/*** Ajout du produit dans le panier ***/
+//------------------------------------------------------------------//
+//-------------------------- CORP DU CODE --------------------------//
+//------------------------------------------------------------------//
+
+var url = window.location.href;
+var ID = url.split('id=')[1]; // Trouve et stock l'ID correspond au produit de la page
+
+product();
+
+
+// 
+// Ajout du produit dans le panier
 
 const button = document.getElementById("addToCart");
-
 button.addEventListener('click', event => {
   var qty = document.getElementById("quantity").value;
   var clr = document.getElementById("colors").value;
@@ -78,19 +101,19 @@ button.addEventListener('click', event => {
     var already = false;
     for( let i = 0 ; i < localStorage.length; i++){  
       if (localStorage.key(i) == key){               // Cherche si il existe déja ce modèle dans le panier
-        already = true;                              // Si oui stock l'info dans un booléée
-        var pos = i;                                 // Et stock la position dans le localStorage 
+        already = true;                              // Si oui stock l'info dans un booléen
+        var pos = i;                                 // Et stock la position de ce dernier dans le localStorage 
       }
     }
     if(already){
       var qtyTotal = parseInt(qty) + readQty(pos);
-      stockJson(qtyTotal,clr);                       // Rajoute la quantité choisis 
+      stock(qtyTotal,clr);                       // Rajoute la quantité choisis si le produit existe déja dans le panier
       document.getElementById("sucess").style.display = "block";
       console.log(localStorage);
   
     }
     else{
-      stockJson(qty,clr);                            // Ajoute le modèle au panier avec la quantité et la couleur
+      stock(qty,clr);                            // Ajoute le modèle au panier avec la quantité et la couleur
       document.getElementById("sucess").style.display = "block";
       console.log(localStorage);
     }
